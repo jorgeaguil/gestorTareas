@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gestor de Tareas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    
+    h1, h2 {
+      text-align: center;
+    }
+    
+    form {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+    
+    button[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    
+    li {
+      background-color: #f9f9f9;
+      padding: 10px;
+      margin-bottom: 5px;
+      border-radius: 4px;
+      position: relative;
+    }
+    
+    .delete-button {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: #ff0000;
+      color: white;
+      border: none;
+      padding: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+ .prioridad-alta {
+      background-color: #e74c3c; /* Rojo */
+            display: inline-block;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+      margin-top: 5px;
+    }
+    
+    .prioridad-media {
+      background-color: #f1c40f; /* Amarillo */
+            display: inline-block;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+      margin-top: 5px;
+    }
+    
+    .prioridad-baja {
+      background-color: #2ecc71; /* Verde */
+            display: inline-block;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+      margin-top: 5px;
+    }
+    .titulo{
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-align: center;
+        float: left;
+        transition: 0.3s;
+        
+        
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<!-- agrega un inicio de sesion -->
+    <div class="titulo" onclick="showLogin()">Iniciar Sesión</div>
+    <div id="login">
+    
+  <h1>Gestor de Tareas</h1>
+
+  <!-- Formulario de creación de tarea -->
+  <h2>Nueva Tarea</h2>
+  <form id="formTarea">
+    <label for="titulo">Título:</label>
+    <input type="text" id="titulo" name="titulo" required>
+
+    <label for="descripcion">Descripción:</label>
+    <textarea id="descripcion" name="descripcion"></textarea>
+
+    <label for="prioridad">Prioridad:</label>
+    <select id="prioridad" name="prioridad">
+      <option value="alta">Alta</option>
+      <option value="media">Media</option>
+      <option value="baja">Baja</option>
+    </select>
+
+    <button type="submit">Crear Tarea</button>
+  </form>
+
+  <!-- Lista de tareas -->
+  <h2>Lista de Tareas</h2>
+  <ul id="listaTareas"></ul>
+
+  <h2>Filtrar por Prioridad</h2>
+<select id="filtroPrioridad">
+  <option value="todas">Todas</option>
+  <option value="alta">Alta</option>
+  <option value="media">Media</option>
+  <option value="baja">Baja</option>
+</select>
+
+  <!-- Icono de notificaciones -->
+  <div class="notification" onclick="showNotifications()">🔔</div>
+  <div id="notificaciones">
+    <!-- Aquí se mostrarían las notificaciones -->
+  </div>
+
+  <script>
+   // Función para crear una nueva tarea
+    function crearTarea(event) {
+      event.preventDefault(); // Evita el envío del formulario
+
+      // Obtener los valores del formulario
+      const titulo = document.getElementById('titulo').value;
+      const descripcion = document.getElementById('descripcion').value;
+      const prioridad = document.getElementById('prioridad').value;
+
+      // Crear un nuevo elemento de lista para la tarea
+      const nuevaTarea = document.createElement('li');
+      nuevaTarea.classList.add('tarea-item');
+
+        // Agregar atributo de prioridad
+        nuevaTarea.setAttribute('data-prioridad', prioridad);
+      
+      // Contenedor para mostrar la prioridad
+      const prioridadElement = document.createElement('span');
+      prioridadElement.textContent = `Prioridad: ${prioridad}`;
+      prioridadElement.classList.add('prioridad', `prioridad-${prioridad}`);
+      
+      // Contenido de la tarea
+      const contenidoTarea = document.createElement('div');
+      contenidoTarea.textContent = `Título: ${titulo}`;
+      contenidoTarea.appendChild(prioridadElement);
+      
+      // Botón de eliminación
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = 'Eliminar';
+      deleteButton.classList.add('delete-button');
+      deleteButton.addEventListener('click', function() {
+        nuevaTarea.remove();
+      });
+      
+      // Agregar contenido a la tarea
+      nuevaTarea.appendChild(contenidoTarea);
+      nuevaTarea.appendChild(deleteButton);
+      
+      // Agregar la tarea a la lista
+      const listaTareas = document.getElementById('listaTareas');
+      listaTareas.appendChild(nuevaTarea);
+
+      // Limpiar el formulario
+      document.getElementById('formTarea').reset();
+    }
+
+    // Agregar el evento de envío del formulario
+    const formTarea = document.getElementById('formTarea');
+    formTarea.addEventListener('submit', crearTarea);
+
+ //   // Función para filtrar las tareas por prioridad
+function filtrarPorPrioridad() {
+  const filtroPrioridad = document.getElementById('filtroPrioridad').value;
+  const tareasItems = document.getElementsByClassName('tarea-item');
+
+  for (let i = 0; i < tareasItems.length; i++) {
+    const tareaItem = tareasItems[i];
+    const prioridad = tareaItem.getAttribute('data-prioridad');
+
+    if (filtroPrioridad === 'todas' || filtroPrioridad === prioridad) {
+      tareaItem.style.display = 'block'; // Mostrar la tarea si coincide con la prioridad seleccionada
+    } else {
+      tareaItem.style.display = 'none'; // Ocultar la tarea si no coincide con la prioridad seleccionada
+    }
+  }
+}
+//
+
+// Agregar evento al cambio de selección del filtro de prioridad
+const filtroPrioridad = document.getElementById('filtroPrioridad');
+filtroPrioridad.addEventListener('change', filtrarPorPrioridad);
+
+    </script>
+</body>
+</html>
+
+
+
+
+
